@@ -17,13 +17,13 @@ def load_vrp_instance(file_path):
         line = line.strip()
 
         if line.startswith("COMMENT"):
-            capacity = int(line.replace(')','').split(" ")[-1])
+            optimal_value = int(line.replace(')','').split(" ")[-1])
       
         elif line.startswith("DIMENSION"):
-            optimal_value = int(line.split(" ")[-1])
+            dimension = int(line.split(" ")[-1])
 
         elif line.startswith("CAPACITY"):
-            dimension = int(line.split(":")[1].strip())
+            capacity = int(line.split(":")[1].strip())
 
         elif line.startswith("NODE_COORD_SECTION"):
             for i in range(dimension):
