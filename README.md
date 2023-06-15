@@ -1,6 +1,9 @@
 # 55MQU_vehicle_routing
 O Problema de Roteamento de Veículos (Vehicle Routing Problem - VRP) é um problema de otimização combinatória que envolve determinar as rotas ótimas para uma frota de veículos atender a um conjunto de clientes, minimizando o custo total. No VRP, cada cliente tem uma demanda por bens ou serviços, e os veículos devem ser atribuídos aos clientes de modo que todas as demandas sejam satisfeitas e a distância total percorrida ou o número de veículos utilizados seja minimizado.
 
+Todas instancias foram retiradas de: 
+http://vrp.galgos.inf.puc-rio.br/index.php/en/
+
 NAME: O nome do problema.
 COMMENT: Um comentário ou descrição adicional sobre o problema.
 TYPE: O tipo de problema, no caso, CVRP (Capacitated Vehicle Routing Problem - Problema de Roteamento de Veículos com Capacidade).
