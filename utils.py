@@ -5,8 +5,6 @@ def load_vrp_instance(file_path):
 
     with open(file_path, 'r') as file:
         lines = file.readlines()
-
-    instance_data = {}
     
     node_coords = {}
     demands = {}
@@ -46,10 +44,22 @@ def get_distance_matrix(dimension, node_coords):
 
     # para todo nó calcula a distancia euclidiana entre todos os demais nós e põe na matriz
     for i in range(dimension):
+        x1, y1 = node_coords[i+1]
         for j in range(dimension):
             if i == j: continue
-            x1, y1 = node_coords[i+1]
             x2, y2 = node_coords[j+1]
             dist_matrix[i-1][j-1] = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     return dist_matrix
+
+def get_distance_from_origin(x, y):
+        return np.sqrt((x)**2 + (y)**2)
+
+
+def calculate_route_cost(route, distance_matrix):
+    cost = 0
+    for i in range(len(route) - 1):
+        start_node = route[i]
+        end_node = route[i+1]
+        cost += distance_matrix[start_node][end_node]
+    return cost
