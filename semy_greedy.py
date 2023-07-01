@@ -1,6 +1,5 @@
 import numpy as np
 
-from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
 from vehicle_routing_problem import VehicleRoutingProblem
 import random
 
@@ -42,44 +41,44 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
         for iteration in range(max_iterations):
 
             # Inicializar as rotas 
-            routes = [[1] for _ in range(self.num_vehicles)]
+            self.current_routes = [[1] for _ in range(self.num_vehicles)]
             # inicializa a lista de clientes disponiveis, a partir do 2 ate o ultimo
-            available_customers = list(range(2, len(self.demands)+1))
+            self.available_customers = list(range(2, len(self.demands)+1))
             visited_customers = []
 
-            current_route = routes[0]
-            while available_customers:        
+            current_route = self.current_routes[0]
+            while self.available_customers:        
                 max_iterations -= 1
 
 
                 # seleciona os k melhores elementos a serem sorteados
-                self.set_k_parameter(len(available_customers)-1)
+                self.set_k_parameter(len(self.available_customers)-1)
 
                 # seleciona os mais próximos baseados parametro k
-                candidate_customers = self.get_k_based_customers(current_route[-1], available_customers)
+                candidate_customers = self.get_k_based_customers(current_route[-1], self.available_customers)
 
                 # sorteia um deles
                 next_customer = self.get_next_customer(candidate_customers, self.get_remaining_capacity(current_route))
 
                 # caso não haja proximo cliente disponivel para rota, erscolhemos outra aleatoriamente para utilizar
                 if not next_customer:
-                    current_route = routes[random.randint(0, (self.num_vehicles)-1)]
+                    current_route = self.current_routes[random.randint(0, (self.num_vehicles)-1)]
                     continue
 
                 # adiciona o cliente na rota atual
                 current_route.append(next_customer)
-                available_customers.remove(next_customer)
+                self.available_customers.remove(next_customer)
                 visited_customers.append(next_customer)
 
                 # seleciona a rota baseado naquela que contem o menor numero de clientes
-                current_route = min(routes, key=len)           
+                current_route = min(self.current_routes, key=len)           
             
-            for route in routes:
+            for route in self.current_routes:
                 route.append(1) 
-            routes_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in routes)
+            self.routes_cost = self.calculate_solution_cost(self.current_routes)
 
-            if not self.best_routes or routes_cost < self.best_cost:
-                self.best_routes, self.best_cost = routes, routes_cost 
+            if not self.best_routes or self.routes_cost < self.best_cost:
+                self.best_routes, self.best_cost = self.current_routes, self.routes_cost 
 
             if self.best_cost == self.optimal_value:
                 break

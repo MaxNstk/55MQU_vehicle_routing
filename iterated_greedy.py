@@ -1,93 +1,86 @@
-import numpy as np
-
-from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
 from vehicle_routing_problem import VehicleRoutingProblem
+import random
 
-
-# TODO garantir que todos caminhoes sejam usados. preencher todos caminhoões simultaneamente ou com alguma outra estratégia
 
 class IteratedGreedyCRVP(VehicleRoutingProblem):
 
-    """ Construtiva gulosa iterada, preenche um caminhão de cada vez, 
-    melhorar para verificar em qual caminhão deve ser posto """
-
-    def get_sorted_customers(self, available_customers, current_customer):
-        candidate_customers = []
-        for customer in available_customers:
-            distance = self.dist_matrix[current_customer][customer]
-            candidate_customers.append((customer, distance))
-        candidate_customers.sort(key=lambda x: x[1])
-        return list(map(lambda x: x[0], candidate_customers))
+    """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
+    melhorar para verificar em qual caminhão deve ser posto """        
     
     def get_next_customer(self, customers, capacity):
         next_customer = None
-        for _ in customers:
-            chosen_customer = np.random.choice(customers)
-            if self.demands[chosen_customer] <= capacity:
-                return chosen_customer     
-            customers.remove(chosen_customer)
+        for customer in customers:
+            if self.demands[customer] <= capacity:
+                return customer     
         return next_customer
     
-
-    def run(self, max_iterations=5000, destruction_percentage=20):
-
-        # armazena o melhor conjunto de rotas até então
-        self.best_routes = []
-        self.best_cost = None
+    def destroy(self):
+        # remove elementos aleatórios das rotas, dado o parametro K
+        idxs_to_remove = random.sample(range(len(self.visited_customers)), self.D)
+        for index in sorted(idxs_to_remove, reverse=True):
+            self.available_customers.append(self.visited_customers[index])
+            del self.visited_customers[index]
         
-        num_customers = len(self.demands) - 1
+        for idx, route in enumerate(self.current_routes):
+            new_route = [customer for customer in route if route in self.visited_customers]                   
+            self.current_routes[idx] = new_route
 
-        for iteration in range(max_iterations):
+    def set_desctruction_amount(self, destruction_percentage):
+        self.D = int((len(self.demands)-1) * (destruction_percentage / 100))
+        self.D = 1 if not self.D else self.D
+    
+    def get_greedy_routes(self):   
 
-            # Inicializar as rotas e as listas de clientes disponíveis e visitados
-            # routes = [[1] for _ in range(self.num_vehicles)]
-            routes = []
-            available_customers = list(range(1, num_customers + 1))
-            visited_customers = []
+        # Inicializar as rotas caso não venham por parâmetro
+        if not self.current_routes: 
+            self.current_routes = [[1] for _ in range(self.num_vehicles)]
+            self.available_customers = list(range(2, len(self.demands)+1))
+            self.visited_customers = []
+            self.current_route = self.current_routes[0]
             
+        while self.available_customers:        
+            self.max_iterations -= 1
 
-            # Criar uma rota inicial com a saída no primerio nó (deposito)
-            sorted_customers = self.get_sorted_customers(available_customers,1)
-            initial_customer = sorted_customers[0]
-            available_customers.remove(initial_customer)
-            visited_customers.append(initial_customer)
-            
-            # Construir as rotas usando a estratégia semi-gulosa
-            while available_customers:
-                max_iterations -= 1
-                # pega o cliente atual e a capacidade disponível
-                current_customer = current_route[-1]
-                remaining_capacity = self.vehicle_capacity - sum(self.demands[route] for route in current_route)
-                
-                # Selecionar os k clientes mais próximos disponíveis
-                candidate_customers = self.get_sorted_customers(available_customers, current_customer)
-                
-                # Selecionar o próximo cliente baseado na demanda e na capacidade restante
-                next_customer = self.get_next_customer(candidate_customers, remaining_capacity)
-                
-                # Se nenhum cliente puder ser alocado, finalizar a rota atual
-                if next_customer is None:
-                    current_route.append(1)
-                    routes.append(current_route)
-                    current_route = [1]
-                else:
-                    current_route.append(next_customer)
-                    available_customers.remove(next_customer)
-                    visited_customers.append(next_customer)
-            
-            # Adicionar a última rota gerada
-            if iteration < self.num_vehicles:
-                self.best_routes = routes
-            
-            # Calcular o custo total das rotas
-            total_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in routes)
+            # seleciona os mais próximos
+            candidate_customers = self.get_closest_customers(self.current_route[-1], self.available_customers)
 
-            # verificar o custo das rotas
-            if not self.best_cost:
-                self.best_cost = total_cost
-            self.best_cost = total_cost if total_cost < self.best_cost else self.best_cost
+            # pega o com a menor rota
+            next_customer = self.get_next_customer(candidate_customers, self.get_remaining_capacity(self.current_route))
 
+            # caso não haja proximo cliente disponivel para rota, escolhemos outra aleatoriamente para utilizar
+            if not next_customer:
+                self.current_route = self.current_routes[random.randint(0, (self.num_vehicles)-1)]
+                continue
+
+            # adiciona o cliente na rota atual
+            self.current_route.append(next_customer)
+            self.available_customers.remove(next_customer)
+            self.visited_customers.append(next_customer)
+
+            # seleciona a rota baseado naquela que contem o menor numero de clientes
+            self.current_route = min(self.current_routes, key=len)           
+        
+        for route in self.current_routes:
+            route.append(1)
+
+        self.current_routes_cost = self.calculate_solution_cost(self.current_routes)
+        if not self.best_routes or self.current_routes_cost < self.best_cost:
+            self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
+        self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
+
+
+    def run(self, max_iterations, destruction_percentage, force_solution=False):
+        self.set_desctruction_amount(destruction_percentage)
+
+        self.max_iterations = max_iterations
+
+        for iteration in range(self.max_iterations):
+            self.get_greedy_routes()   
             if self.best_cost == self.optimal_value:
-                return routes
-            
+                break
+            self.destroy()
+                     
         return self.best_routes, self.best_cost, self.optimal_value
+
+semi_greedy = IteratedGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
+print(semi_greedy.run(max_iterations=300, destruction_percentage=20))
