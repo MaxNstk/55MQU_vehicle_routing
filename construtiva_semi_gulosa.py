@@ -4,18 +4,13 @@ from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
 from vehicle_routing_problem import VehicleRoutingProblem
 
 
+# TODO garantir que todos caminhoes sejam usados. preencher todos caminhoões simultaneamente ou com alguma outra estratégia
+
 class SemiGreedyCRVP(VehicleRoutingProblem):
+
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """
-    
-    k = 0.5
 
-    def __init__(self, file_path="instances\A\A-n32-k5.vrp") -> None:
-        self.file_path = file_path
-
-        self.vehicle_capacity, self.num_vehicles, self.optimal_value, self.dimension, self.node_coords, self.demands = load_vrp_instance(file_path)
-        self.dist_matrix = get_distance_matrix(self.dimension, self.node_coords)
-    
     def get_sorted_customers(self, available_customers, current_customer):
         candidate_customers = []
         for customer in available_customers:
@@ -49,7 +44,8 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
         for iteration in range(max_iterations):
 
             # Inicializar as rotas e as listas de clientes disponíveis e visitados
-            routes = [[1] for _ in range(self.num_vehicles)]
+            # routes = [[1] for _ in range(self.num_vehicles)]
+            routes = []
             available_customers = list(range(1, num_customers + 1))
             visited_customers = []
             

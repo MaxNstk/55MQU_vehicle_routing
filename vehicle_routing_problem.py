@@ -2,7 +2,7 @@ from utils import get_distance_matrix, load_vrp_instance
 
 class VehicleRoutingProblem:
 
-    k = 0.5
+    k = None
 
     def __init__(self, file_path="instances\A\A-n32-k5.vrp"):
         self.file_path = file_path
