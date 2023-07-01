@@ -1,12 +1,16 @@
 import numpy as np
-from construtiva_semi_gulosa import SemiGreedyCRVP
 
 from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
 from vehicle_routing_problem import VehicleRoutingProblem
 
 
+# TODO garantir que todos caminhoes sejam usados. preencher todos caminhoões simultaneamente ou com alguma outra estratégia
+
 class IteratedGreedyCRVP(VehicleRoutingProblem):
-    
+
+    """ Construtiva gulosa iterada, preenche um caminhão de cada vez, 
+    melhorar para verificar em qual caminhão deve ser posto """
+
     def get_sorted_customers(self, available_customers, current_customer):
         candidate_customers = []
         for customer in available_customers:
@@ -24,61 +28,66 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             customers.remove(chosen_customer)
         return next_customer
     
-    def destroy_solution(self, solution):
-        # Remove randomly selected customers from the routes
-        for i in range(len(solution)):
-            route = solution[i]
-            if len(route) > 2:
-                remove_customer = np.random.choice(route[1:-1])
-                route.remove(remove_customer)
-        return solution
-    
-    def reconstruct_solution(self, solution):
-        # Insert randomly selected customers back into the routes
-        available_customers = list(range(1, self.dimension + 1))
-        for route in solution:
-            available_customers.remove(route[0])
-            available_customers.remove(route[-1])
-        
-        for i in range(len(solution)):
-            route = solution[i]
-            remaining_capacity = self.vehicle_capacity - sum(self.demands[customer] for customer in route)
-            while remaining_capacity > 0 and available_customers:
-                next_customer = self.get_next_customer(available_customers, remaining_capacity)
-                if next_customer is not None:
-                    route.append(next_customer)
-                    available_customers.remove(next_customer)
-                    remaining_capacity -= self.demands[next_customer]
-                else:
-                    break
-        return solution
-    
-    def run(self, max_iterations, destroy_percentage, reconstruct_percentage):
-        best_routes = None
-        best_cost = None
+
+    def run(self, max_iterations=5000, destruction_percentage=20):
+
+        # armazena o melhor conjunto de rotas até então
+        self.best_routes = []
+        self.best_cost = None
         
         num_customers = len(self.demands) - 1
 
         for iteration in range(max_iterations):
-            # Construct initial solution using a semi-greedy approach
-            semi_greedy = SemiGreedyCRVP(self.file_path)
-            solution = semi_greedy.run(1, 0)
+
+            # Inicializar as rotas e as listas de clientes disponíveis e visitados
+            # routes = [[1] for _ in range(self.num_vehicles)]
+            routes = []
+            available_customers = list(range(1, num_customers + 1))
+            visited_customers = []
             
-            # Improve the solution using the Iterated Greedy approach
-            for _ in range(destroy_percentage):
-                destroyed_solution = self.destroy_solution(solution)
-                reconstructed_solution = self.reconstruct_solution(destroyed_solution)
+
+            # Criar uma rota inicial com a saída no primerio nó (deposito)
+            sorted_customers = self.get_sorted_customers(available_customers,1)
+            initial_customer = sorted_customers[0]
+            available_customers.remove(initial_customer)
+            visited_customers.append(initial_customer)
+            
+            # Construir as rotas usando a estratégia semi-gulosa
+            while available_customers:
+                max_iterations -= 1
+                # pega o cliente atual e a capacidade disponível
+                current_customer = current_route[-1]
+                remaining_capacity = self.vehicle_capacity - sum(self.demands[route] for route in current_route)
                 
-                # Calculate the cost of the reconstructed solution
-                total_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in reconstructed_solution)
+                # Selecionar os k clientes mais próximos disponíveis
+                candidate_customers = self.get_sorted_customers(available_customers, current_customer)
                 
-                # Update the best solution if the cost is lower
-                if best_cost is None or total_cost < best_cost:
-                    best_cost = total_cost
-                    best_routes = reconstructed_solution
+                # Selecionar o próximo cliente baseado na demanda e na capacidade restante
+                next_customer = self.get_next_customer(candidate_customers, remaining_capacity)
+                
+                # Se nenhum cliente puder ser alocado, finalizar a rota atual
+                if next_customer is None:
+                    current_route.append(1)
+                    routes.append(current_route)
+                    current_route = [1]
+                else:
+                    current_route.append(next_customer)
+                    available_customers.remove(next_customer)
+                    visited_customers.append(next_customer)
             
-            # Check if the optimal value has been reached
-            if best_cost == self.optimal_value:
-                return best_routes
+            # Adicionar a última rota gerada
+            if iteration < self.num_vehicles:
+                self.best_routes = routes
             
-        return best_routes, best_cost, self.optimal_value
+            # Calcular o custo total das rotas
+            total_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in routes)
+
+            # verificar o custo das rotas
+            if not self.best_cost:
+                self.best_cost = total_cost
+            self.best_cost = total_cost if total_cost < self.best_cost else self.best_cost
+
+            if self.best_cost == self.optimal_value:
+                return routes
+            
+        return self.best_routes, self.best_cost, self.optimal_value

@@ -10,6 +10,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
 
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """
+    k = None
 
     def get_sorted_customers(self, available_customers, current_customer):
         candidate_customers = []
@@ -32,7 +33,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
 
     def run(self, max_iterations, k_percentage):
 
-        # armzaze o melhor conjunto de rotas até então
+        # armazena o melhor conjunto de rotas até então
         self.best_routes = []
         self.best_cost = None
         
@@ -46,7 +47,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             # Inicializar as rotas e as listas de clientes disponíveis e visitados
             # routes = [[1] for _ in range(self.num_vehicles)]
             routes = []
-            available_customers = list(range(1, num_customers + 1))
+            available_customers = list(range(2, num_customers + 2))
             visited_customers = []
             
             # Criar uma rota inicial cpm a saida no primerio nó (deposito)

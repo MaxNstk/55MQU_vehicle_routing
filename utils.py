@@ -61,5 +61,5 @@ def calculate_route_cost(route, distance_matrix):
     for i in range(len(route) - 1):
         start_node = route[i]
         end_node = route[i+1]
-        cost += distance_matrix[start_node][end_node]
+        cost += distance_matrix[start_node-1][end_node-1]
     return cost

@@ -1,5 +1,6 @@
 from construtiva_semi_gulosa import SemiGreedyCRVP
-from iterated_greedy import IteratedGreedyCRVP
+from semy_greedy_v2 import SemiGreedyCRVP2
+# from iterated_greedy import IteratedGreedyCRVP
 
 # instances = [
 #     "instances\A\A-n32-k5.vrp", 
@@ -22,10 +23,10 @@ from iterated_greedy import IteratedGreedyCRVP
 #     "instances\Uchoa_2014\X\X-n294-k50.vrp",
 #     ]
 
-semi_greedy = SemiGreedyCRVP()
-print(semi_greedy.run(5000, 50))
+semi_greedy = SemiGreedyCRVP2(file_path="instances\A\A-n32-k5.vrp")
+print(semi_greedy.run(max_iterations=5000, k_percentage=50))
 
-# iterated_greedy = IteratedGreedyCRVP()
-# print(iterated_greedy.run(100, 20, 20))
+# iterated_greedy = IteratedGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
+# print(iterated_greedy.run(max_iterations=5000, destruction_percentage=20))
 
 
