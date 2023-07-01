@@ -1,15 +1,20 @@
 import numpy as np
 
-from utils import calculate_route_cost
+from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
 from vehicle_routing_problem import VehicleRoutingProblem
 
 
 class SemiGreedyCRVP(VehicleRoutingProblem):
-
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """
-
+    
     k = 0.5
+
+    def __init__(self, file_path="instances\A\A-n32-k5.vrp") -> None:
+        self.file_path = file_path
+
+        self.vehicle_capacity, self.num_vehicles, self.optimal_value, self.dimension, self.node_coords, self.demands = load_vrp_instance(file_path)
+        self.dist_matrix = get_distance_matrix(self.dimension, self.node_coords)
     
     def get_sorted_customers(self, available_customers, current_customer):
         candidate_customers = []
@@ -27,13 +32,14 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             if self.demands[chosen_customer] <= capacity:
                 return chosen_customer     
             customers.remove(chosen_customer)
-        return next_customer    
+        return next_customer
+    
 
     def run(self, max_iterations, k_percentage):
 
         # armzaze o melhor conjunto de rotas até então
-        best_routes = []
-        best_cost = None
+        self.best_routes = []
+        self.best_cost = None
         
         # Calcular o valor de k baseado no percentual fornecido
         num_customers = len(self.demands) - 1
@@ -79,17 +85,17 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             
             # Adicionar a última rota gerada
             if iteration < self.num_vehicles:
-                best_routes = routes
+                self.best_routes = routes
             
             # Calcular o custo total das rotas
             total_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in routes)
 
             # verificar o custo das rotas
-            if not best_cost:
-                best_cost = total_cost
-            best_cost = total_cost if total_cost < best_cost else best_cost
+            if not self.best_cost:
+                self.best_cost = total_cost
+            self.best_cost = total_cost if total_cost < self.best_cost else self.best_cost
 
-            if best_cost == self.optimal_value:
+            if self.best_cost == self.optimal_value:
                 return routes
             
-        return best_routes, best_cost, self.optimal_value
+        return self.best_routes, self.best_cost, self.optimal_value

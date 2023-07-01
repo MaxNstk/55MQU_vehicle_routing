@@ -1,5 +1,5 @@
 import numpy as np
-from utils import calculate_route_cost,
+from utils import calculate_route_cost
 from vehicle_routing_problem import VehicleRoutingProblem
 
 class IteratedGreedyCRVP(VehicleRoutingProblem):
