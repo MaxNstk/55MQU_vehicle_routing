@@ -1,13 +1,10 @@
 import numpy as np
-from utils import calculate_route_cost, get_distance_matrix, load_vrp_instance
+from utils import calculate_route_cost,
+from vehicle_routing_problem import VehicleRoutingProblem
 
-class IteratedGreedyCRVP:
+class IteratedGreedyCRVP(VehicleRoutingProblem):
+
     k = 0.5
-
-    def __init__(self, file_path="instances\A\A-n32-k5.vrp"):
-        self.file_path = file_path
-        self.vehicle_capacity, self.num_vehicles, self.optimal_value, self.dimension, self.node_coords, self.demands = load_vrp_instance(file_path)
-        self.dist_matrix = get_distance_matrix(self.dimension, self.node_coords)
     
     def get_sorted_customers(self, available_customers, current_customer):
         candidate_customers = []
