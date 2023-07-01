@@ -13,7 +13,7 @@ class VehicleRoutingProblem:
             distance = self.dist_matrix[current_customer-1][customer-1]
             closest_cutomers.append((customer, distance))
         closest_cutomers.sort(key=lambda x: x[1])
-        return closest_cutomers
+        return list(map(lambda x: x[0], closest_cutomers))
 
     def get_remaining_capacity(self, route):
         return self.vehicle_capacity - sum(self.demands[node] for node in route)

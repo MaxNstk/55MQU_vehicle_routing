@@ -7,7 +7,7 @@ import random
 
 # TODO garantir que todos caminhoes sejam usados. preencher todos caminhoões simultaneamente ou com alguma outra estratégia
 
-class SemiGreedyCRVP2(VehicleRoutingProblem):
+class SemiGreedyCRVP(VehicleRoutingProblem):
 
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """
@@ -16,8 +16,7 @@ class SemiGreedyCRVP2(VehicleRoutingProblem):
     k = None
 
     def get_k_based_customers(self, current_customer, available_customers):
-        candidate_customers = self.get_closest_customers(current_customer,available_customers)[:self.k]
-        return list(map(lambda x: x[0], candidate_customers))
+        return self.get_closest_customers(current_customer,available_customers)[:self.k]
     
     def get_next_customer(self, customers, capacity):
         next_customer = None
@@ -87,5 +86,5 @@ class SemiGreedyCRVP2(VehicleRoutingProblem):
             
         return self.best_routes, self.best_cost, self.optimal_value
 
-semi_greedy = SemiGreedyCRVP2(file_path="instances\A\A-n32-k5.vrp")
+semi_greedy = SemiGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
 print(semi_greedy.run(max_iterations=5000, k_percentage=50))
