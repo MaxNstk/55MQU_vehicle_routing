@@ -2,27 +2,28 @@ from vehicle_routing_problem import VehicleRoutingProblem
 import random
 
 
+# TODO impedir a remoção da primeira e ultima rota, verificar 
+# por que clientes disponíveis ja estão em rotas
 class IteratedGreedyCRVP(VehicleRoutingProblem):
 
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """        
     
     def get_next_customer(self, customers, capacity):
-        next_customer = None
         for customer in customers:
             if self.demands[customer] <= capacity:
                 return customer     
-        return next_customer
+        return None
     
     def destroy(self):
         # remove elementos aleatórios das rotas, dado o parametro K
-        idxs_to_remove = random.sample(range(len(self.visited_customers)), self.D)
-        for index in sorted(idxs_to_remove, reverse=True):
-            self.available_customers.append(self.visited_customers[index])
-            del self.visited_customers[index]
+        customers_to_destoy = random.sample(self.visited_customers, self.D)
+        for customer in customers_to_destoy:
+            self.available_customers.append(customer)
+            self.visited_customers.remove(customer)
         
         for idx, route in enumerate(self.current_routes):
-            new_route = [customer for customer in route if route in self.visited_customers]                   
+            new_route = [customer for customer in route if customer not in self.available_customers]
             self.current_routes[idx] = new_route
 
     def set_desctruction_amount(self, destruction_percentage):
@@ -37,6 +38,10 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             self.available_customers = list(range(2, len(self.demands)+1))
             self.visited_customers = []
             self.current_route = self.current_routes[0]
+        else:
+            # remove o deposito da ultima posição
+            for route in self.current_routes:
+                del route[-1]
             
         while self.available_customers:        
             self.max_iterations -= 1
@@ -83,4 +88,4 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         return self.best_routes, self.best_cost, self.optimal_value
 
 semi_greedy = IteratedGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
-print(semi_greedy.run(max_iterations=300, destruction_percentage=20))
+print(semi_greedy.run(max_iterations=5000, destruction_percentage=20))
