@@ -62,10 +62,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
 
                 # caso não haja proximo cliente disponivel para rota, erscolhemos outra aleatoriamente para utilizar
                 if not next_customer:
-                    current_route = self.get_truck_with_less_capacity(self.current_routes)
-                    if not self.get_next_customer(candidate_customers, self.get_remaining_capacity(current_route)):
-                        break
-                    continue
+                    break
 
                 # adiciona o cliente na rota atual
                 current_route.append(next_customer)
@@ -73,7 +70,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
                 visited_customers.append(next_customer)
 
                 # seleciona a rota baseado naquela que contem o menor numero de clientes
-                current_route = min(self.current_routes, key=len)           
+                current_route = self.get_truck_with_less_capacity(self.current_routes)          
             
             if self.available_customers:
                 continue
@@ -90,5 +87,5 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             
         return self.best_routes, self.best_cost, self.optimal_value
 
-semi_greedy = SemiGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
-print(semi_greedy.run(max_iterations=5000, k_percentage=50))
+# semi_greedy = SemiGreedyCRVP(file_path="instances/A/A-n80-k10.vrp")
+# print(semi_greedy.run(max_iterations=5000, k_percentage=50))

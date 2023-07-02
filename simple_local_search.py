@@ -28,9 +28,12 @@ class SimpleLocalSearch(VehicleRoutingProblem):
     def run(self, max_iterations):
 
         # Gera a solução inicial utilizando o SemiGreedy
-        iterated_greedy = IteratedGreedyCRVP()
+        iterated_greedy = IteratedGreedyCRVP(self.file_path)
 
         initial_solution = iterated_greedy.run(max_iterations=1, destruction_percentage=20)
+
+        while not initial_solution[0]:
+            initial_solution = iterated_greedy.run(max_iterations=1, destruction_percentage=20)
         self.best_routes, self.best_cost = initial_solution[0], initial_solution[1]
 
         iteration = 0
@@ -53,8 +56,8 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             if self.best_cost == self.optimal_value:
                 return self.best_routes, self.best_cost
 
-        return self.best_routes, self.best_cost
+        return self.best_routes, self.best_cost, self.optimal_value
     
 
-simple_local_search = SimpleLocalSearch()
-print(simple_local_search.run(5000))
+# simple_local_search = SimpleLocalSearch('instances/A/A-n80-k10.vrp')
+# print(simple_local_search.run(5000))
