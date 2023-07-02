@@ -16,7 +16,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         return None
     
     def destroy(self):
-        # remove elementos aleatórios das rotas, dado o parametro K
+        # remove elementos aleatórios das rotas, dado o parametro D
         customers_to_destoy = random.sample(self.visited_customers, self.D)
         for customer in customers_to_destoy:
             self.available_customers.append(customer)
@@ -62,7 +62,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             self.visited_customers.append(next_customer)
 
             # seleciona a rota baseado naquela que contem o menor numero de clientes
-            self.current_route = self.get_truck_with_less_capacity(self.current_routes) 
+            self.current_route = self.get_route_with_more_capacity(self.current_routes) 
         
         # se ainda houver clientes
         if self.available_customers:
