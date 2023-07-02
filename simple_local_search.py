@@ -1,6 +1,5 @@
-from construtiva_semi_gulosa import SemiGreedyCRVP
+from semy_greedy import SemiGreedyCRVP
 from vehicle_routing_problem import VehicleRoutingProblem
-from utils import calculate_route_cost, load_vrp_instance
 
 class SimpleLocalSearch(VehicleRoutingProblem):
 
@@ -19,7 +18,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
 
         # Verifica custo de solução e atribui como o melhor até o momento
         self.best_routes = current_solution
-        self.best_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in self.best_routes)
+        self.best_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in self.best_routes)
 
         iteration = 0
 
@@ -40,7 +39,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
                     current_solution[j][i] = customer1
 
                     # Avalie o custo da nova solução
-                    neighbor_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in current_solution)
+                    neighbor_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in current_solution)
 
                     # Verifique se é a melhor vizinhança encontrada
                     if neighbor_cost < self.best_cost:
@@ -55,7 +54,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             best_solution = best_neighbor
 
             # Verifica o custo da solução
-            neighbor_cost = sum(calculate_route_cost(route, self.dist_matrix) for route in best_solution)
+            neighbor_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in best_solution)
 
             # Verifica se a solução gerada é melhor
             if neighbor_cost < self.best_cost:
@@ -67,3 +66,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
                 return self.best_routes, self.best_cost
 
         return self.best_routes, self.best_cost
+    
+
+simple_local_search = SimpleLocalSearch()
+print(simple_local_search.run(5000,15))
