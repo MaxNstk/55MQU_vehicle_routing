@@ -1,24 +1,37 @@
-from semy_greedy import SemiGreedyCRVP
+import random
+from iterated_greedy import IteratedGreedyCRVP
 from vehicle_routing_problem import VehicleRoutingProblem
 
 class SimpleLocalSearch(VehicleRoutingProblem):
 
-    # Função que implementa o algoritmo de busca local simples
-    def run(self, max_iterations, k_percentage):
+    def change_customers_route(self):
+        
+        # seleciona duas rotas aleatorias
+        first_route = self.get_random_route()
+        second_route = self.get_random_route()
+        while first_route == second_route:
+            second_route = self.get_random_route()
 
-        # Calcular o valor de k baseado no percentual fornecido
-        num_customers = len(self.demands) - 1
-        self.k = int(num_customers * (k_percentage / 100))
+        # seleciona dois clientes aleatorios das rotas, excluindo o deposito
+        first_customer = random.choice(first_route[1:-1])
+        first_customer_idx = first_route.index(first_customer)
+
+        second_customer = random.choice(second_route[1:-1])
+        second_customer_idx = second_route.index(second_customer)
+
+        # troca as os clientes nas rotas escolhidas
+        first_route[first_customer_idx] = second_customer
+        second_route[second_customer_idx] = first_customer
+
+
+    # Função que implementa o algoritmo de busca local simples
+    def run(self, max_iterations):
 
         # Gera a solução inicial utilizando o SemiGreedy
-        semi_greedy = SemiGreedyCRVP()
+        iterated_greedy = IteratedGreedyCRVP()
 
-        initial_solution = semi_greedy.run(10, 15)[0]
-        current_solution = initial_solution
-
-        # Verifica custo de solução e atribui como o melhor até o momento
-        self.best_routes = current_solution
-        self.best_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in self.best_routes)
+        initial_solution = iterated_greedy.run(max_iterations=1, destruction_percentage=20)
+        self.best_routes, self.best_cost = initial_solution[0], initial_solution[1]
 
         iteration = 0
 
@@ -28,38 +41,13 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             # Incrementa o contador
             iteration += 1
 
-            # Percorra todas as rotas possíveis para encontrar a melhor vizinhança
-            for i in range(len(current_solution)):
-                for j in range(len(current_solution[i])):
+            self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
+            self.change_customers_route()
 
-                    # Realize a troca de clientes entre as rotas
-                    customer1 = current_solution[i][j]
-                    customer2 = current_solution[j][i]
-                    current_solution[i][j] = customer2
-                    current_solution[j][i] = customer1
+            self.current_routes_cost = self.calculate_solution_cost(self.current_routes)
 
-                    # Avalie o custo da nova solução
-                    neighbor_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in current_solution)
-
-                    # Verifique se é a melhor vizinhança encontrada
-                    if neighbor_cost < self.best_cost:
-                        best_neighbor = current_solution
-                        self.best_cost = neighbor_cost
-
-                    # Desfaça a troca para a próxima iteração
-                    current_solution[i][j] = customer1
-                    current_solution[j][i] = customer2
-
-            # Atribuindo solução gerada à atual
-            best_solution = best_neighbor
-
-            # Verifica o custo da solução
-            neighbor_cost = sum(self.calculate_route_cost(route, self.dist_matrix) for route in best_solution)
-
-            # Verifica se a solução gerada é melhor
-            if neighbor_cost < self.best_cost:
-                self.best_routes = best_solution
-                self.best_cost = neighbor_cost
+            if self.current_routes_cost < self.best_cost:
+               self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
             # Verifica se solução gerada é a ideal
             if self.best_cost == self.optimal_value:
@@ -69,4 +57,4 @@ class SimpleLocalSearch(VehicleRoutingProblem):
     
 
 simple_local_search = SimpleLocalSearch()
-print(simple_local_search.run(5000,15))
+print(simple_local_search.run(5000))

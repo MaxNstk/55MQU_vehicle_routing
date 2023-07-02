@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 class VehicleRoutingProblem:
@@ -24,6 +25,13 @@ class VehicleRoutingProblem:
 
     def get_remaining_capacity(self, route):
         return self.vehicle_capacity - sum(self.demands[node] for node in route)
+    
+    def get_truck_with_less_capacity(self, routes):
+        capacities = [self.get_remaining_capacity(route) for route in routes]
+        return routes[capacities.index(max(capacities))]
+    
+    def get_random_route(self):
+        return self.current_routes[random.randint(0, (self.num_vehicles)-1)]
 
     def run(self):
         raise NotImplementedError()

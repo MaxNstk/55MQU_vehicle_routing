@@ -54,7 +54,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
 
             # caso não haja proximo cliente disponivel para rota, escolhemos outra aleatoriamente para utilizar
             if not next_customer:
-                self.current_route = self.current_routes[random.randint(0, (self.num_vehicles)-1)]
+                self.current_route = self.get_random_route()
                 continue
 
             # adiciona o cliente na rota atual
@@ -87,5 +87,5 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
                      
         return self.best_routes, self.best_cost, self.optimal_value
 
-semi_greedy = IteratedGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
-print(semi_greedy.run(max_iterations=5000, destruction_percentage=20))
+# semi_greedy = IteratedGreedyCRVP(file_path="instances\A\A-n32-k5.vrp")
+# print(semi_greedy.run(max_iterations=5000, destruction_percentage=20))
