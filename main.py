@@ -1,5 +1,5 @@
 from iterated_greedy import IteratedGreedyCRVP
-from semy_greedy import SemiGreedyCRVP
+from iterated_semi_greedy import SemiGreedyCRVP
 import statistics
 
 from simple_local_search import SimpleLocalSearch
@@ -26,9 +26,6 @@ instances = [
     "instances/Uchoa_2014/X/X-n284-k15.vrp",
     "instances/Uchoa_2014/X/X-n294-k50.vrp",
 ]
-
-# Resto do seu código...
-
 
 # semy_greedy_results = []
 # for instance in instances:

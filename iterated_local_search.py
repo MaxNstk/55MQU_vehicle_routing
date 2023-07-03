@@ -1,6 +1,6 @@
 import random
 from iterated_greedy import IteratedGreedyCRVP
-from semy_greedy import SemiGreedyCRVP
+from iterated_semi_greedy import SemiGreedyCRVP
 from vehicle_routing_problem import VehicleRoutingProblem
 
 class IteratedLocalSearch(VehicleRoutingProblem):
@@ -47,7 +47,7 @@ class IteratedLocalSearch(VehicleRoutingProblem):
             self.detroy_routes()
             self.complete_missing_routes()
 
-            self.current_routes_cost = self.calculate_solution_cost(self.current_routes)
+            self.current_routes_cost = self.get_routes_cost(self.current_routes)
 
             if self.current_routes_cost < self.best_cost:
                self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost

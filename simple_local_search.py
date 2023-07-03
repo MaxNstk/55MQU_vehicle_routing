@@ -49,7 +49,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
             self.change_customers_route()
 
-            self.current_routes_cost = self.calculate_solution_cost(self.current_routes)
+            self.current_routes_cost = self.get_routes_cost(self.current_routes)
 
             if self.current_routes_cost < self.best_cost:
                self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost

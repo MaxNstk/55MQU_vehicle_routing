@@ -16,6 +16,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         return None
     
     def destroy(self):
+
         # remove elementos aleatórios das rotas, dado o parametro D
         customers_to_destoy = random.sample(self.visited_customers, self.D)
         for customer in customers_to_destoy:
@@ -71,7 +72,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         for route in self.current_routes:
             route.append(1)
 
-        self.current_routes_cost = self.calculate_solution_cost(self.current_routes)
+        self.current_routes_cost = self.get_routes_cost(self.current_routes)
         if not self.best_routes or self.current_routes_cost < self.best_cost:
             self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
         self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
@@ -79,6 +80,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
 
     def run(self, max_iterations, destruction_percentage, force_solution=False):
         self.set_desctruction_amount(destruction_percentage)
+
 
         self.max_iterations = max_iterations
 

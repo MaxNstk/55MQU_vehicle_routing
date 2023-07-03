@@ -9,6 +9,8 @@ class VehicleRoutingProblem:
     current_routes = None
     current_routes_cost = None
 
+    available_customers = None
+
 
     def __init__(self, file_path="instances\A\A-n32-k5.vrp"):
         self.file_path = file_path
@@ -23,6 +25,18 @@ class VehicleRoutingProblem:
         closest_cutomers.sort(key=lambda x: x[1])
         return list(map(lambda x: x[0], closest_cutomers))
 
+    def initialize_empty_routes(self):
+        # Cria a quantidade de rotas referente a quantidade de veículos e adiciona o depósito nela
+        self.current_routes = [[1] for _ in range(self.num_vehicles)]
+    
+    def initialize_customers(self):
+        # inicializa a lista de clientes disponiveis, a partir do 2 (0 não exite e 1 é o depósito) ate o ultimo
+        self.available_customers = list(range(2, len(self.demands)+1))
+    
+    def add_deposit_to_routes(self,routes):
+        for route in routes:
+            route.append(1) 
+
     def get_remaining_capacity(self, route):
         return self.vehicle_capacity - sum(self.demands[node] for node in route)
     
@@ -36,7 +50,7 @@ class VehicleRoutingProblem:
     def run(self):
         raise NotImplementedError()
     
-    def calculate_solution_cost(self, solution):
+    def get_routes_cost(self, solution):
         return sum(self.calculate_route_cost(node, self.dist_matrix) for node in solution)
     
     def load_vrp_instance(self, file_path):

@@ -77,7 +77,7 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
 
             for route in self.current_routes:
                 route.append(1) 
-            self.routes_cost = self.calculate_solution_cost(self.current_routes)
+            self.routes_cost = self.get_routes_cost(self.current_routes)
 
             if not self.best_routes or self.routes_cost < self.best_cost:
                 self.best_routes, self.best_cost = self.current_routes, self.routes_cost 
