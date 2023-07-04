@@ -9,6 +9,17 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
 
     """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
     melhorar para verificar em qual caminhão deve ser posto """        
+
+    def __init__(self,max_iterations, destruction_percentage, k_percentage, file_path="instances\A\A-n32-k5.vrp"):
+        super().__init__(file_path)
+        self.max_iterations = max_iterations
+
+        # define a quantidade de elementos a serem destruidos da solução atual
+        self.set_desctruction_amount(destruction_percentage)
+        
+        # cria uma instancia do semi_greedy para usar para solução inicial e reconstrução das rotas
+        self.semi_greedy =  SemiGreedyCRVP(k_percentage=k_percentage, file_path=self.file_path)
+        
     
     def destroy_solution(self):
         self.available_customers = []
@@ -36,17 +47,9 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         if self.current_routes_cost < self.best_cost:
             self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
-    def run(self, max_iterations, destruction_percentage, k_percentage):
-        self.max_iterations = max_iterations
-
-        # define a quantidade de elementos a serem destruidos da solução atual
-        self.set_desctruction_amount(destruction_percentage)
-        
-        # cria uma instancia do semi_greedy para usar para solução inicial e reconstrução das rotas
-        semi_greedy =  SemiGreedyCRVP(k_percentage=k_percentage, file_path=self.file_path)
-
+    def run(self):
         #define solução inicial
-        initial_solution = semi_greedy.run()
+        initial_solution = self.semi_greedy.run()
 
         self.best_routes, self.best_cost = initial_solution['routes'], initial_solution['solution_cost']
 
@@ -59,7 +62,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             self.destroy_solution()
 
             #reconstroi a solução com o semi guloso
-            self.available_customers, self.current_routes = semi_greedy.get_semi_greedy_routes(self.available_customers, self.current_routes)
+            self.available_customers, self.current_routes = self.semi_greedy.get_semi_greedy_routes(self.available_customers, self.current_routes)
 
             # verifica se faltou visitar alguem e continua, a rota é invalidada
             if self.available_customers:
@@ -79,5 +82,5 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             'optimal_cost': self.optimal_value
         }
 
-semi_greedy = IteratedGreedyCRVP()
-print(semi_greedy.run(max_iterations=5000, destruction_percentage=20, k_percentage=20))
+iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=20, k_percentage=20)
+print(iterated_greedy.run())
