@@ -55,7 +55,6 @@ class SimpleLocalSearch(VehicleRoutingProblem):
                 return self.best_routes, self.best_cost
 
         return self.best_routes, self.best_cost, self.optimal_value
-    
 
 # simple_local_search = SimpleLocalSearch()
 # print(simple_local_search.run(5000))

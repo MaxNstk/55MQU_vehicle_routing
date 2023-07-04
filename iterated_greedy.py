@@ -18,7 +18,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         self.set_desctruction_amount(destruction_percentage)
         
         # cria uma instancia do semi_greedy para usar para solução inicial e reconstrução das rotas
-        self.semi_greedy =  SemiGreedyCRVP(k_percentage=k_percentage, file_path=self.file_path)
+        self.semi_greedy = SemiGreedyCRVP(k_percentage=k_percentage, file_path=self.file_path)
         
     
     def destroy_solution(self):
@@ -48,16 +48,15 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
     def run(self):
-        #define solução inicial
-        initial_solution = self.semi_greedy.run()
 
-        self.best_routes, self.best_cost = initial_solution['routes'], initial_solution['solution_cost']
+        #define solução inicial
+        initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
+
+        self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
         while self.max_iterations > 0:
-
-            # atribui a solução atual a melhor encontrada ate então
-            self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
-
+        
             #destroi parcialmente a solução
             self.destroy_solution()
 
