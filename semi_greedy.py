@@ -12,6 +12,10 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
     k_percentage = None
     k = None
 
+    def __init__(self,k_percentage, file_path="instances\A\A-n32-k5.vrp"):
+        self.k_percentage = k_percentage
+        super().__init__(file_path)
+
     def get_k_based_customers(self, current_customer, available_customers):
         return self.get_closest_customers(current_customer,available_customers)[:self.k]
     
@@ -24,22 +28,18 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             customers.remove(chosen_customer)
         return next_customer
     
-    def set_k_customers_amount(self,customers_amount):
-        self.k = int(customers_amount * (self.k_percentage / 100))
-        self.k = 1 if not self.k else self.k
-    
-    def get_semi_greedy_routes(self):
+    def get_semi_greedy_routes(self, available_customers, current_routes):
 
-        while self.available_customers:
+        while available_customers:
 
             # seleciona a rota baseado naquela que tem a maior capacidade disponível
-            current_route = self.get_route_with_more_capacity(self.current_routes)
+            current_route = self.get_route_with_more_capacity(current_routes)
 
             # define a quantidade k de elementos baseados no parâmetro recebido
-            self.set_k_customers_amount(len(self.available_customers)-1)
+            self.set_k_customers_amount(len(available_customers)-1)
 
             # seleciona os mais próximos e corta a lista em k elementos
-            candidate_customers = self.get_k_based_customers(current_route[-1], self.available_customers)
+            candidate_customers = self.get_k_based_customers(current_route[-1], available_customers)
 
             # sorteia um deles aleatóriamente, caso tenha espaço na rota adiciona, se não seleciona outra
             next_customer = self.get_next_customer(candidate_customers, self.get_remaining_capacity(current_route))
@@ -50,16 +50,17 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
 
             # adiciona o cliente na rota atual
             current_route.append(next_customer)
-            self.available_customers.remove(next_customer)
+            available_customers.remove(next_customer)
+        return available_customers, current_routes
 
-    def run(self, k_percentage):
-        self.k_percentage = k_percentage
+    def run(self):
 
-        self.initialize_customers()
+        self.get_all_customers()
+        self.available_customers = True
         while self.available_customers:
-            self.initialize_empty_routes()
-            self.initialize_customers()
-            self.get_semi_greedy_routes()
+            self.current_routes = self.get_empty_routes()
+            self.available_customers = self.get_all_customers()
+            self.available_customers, self.current_routes = self.get_semi_greedy_routes(self.available_customers, self.current_routes)
 
         self.add_deposit_to_routes(self.current_routes) 
 
@@ -69,5 +70,5 @@ class SemiGreedyCRVP(VehicleRoutingProblem):
             'optimal_cost': self.optimal_value
         }
 
-# semi_greedy = SemiGreedyCRVP()
-# print(semi_greedy.run(k_percentage=50))
+# semi_greedy = SemiGreedyCRVP(k_percentage=50)
+# print(semi_greedy.run())

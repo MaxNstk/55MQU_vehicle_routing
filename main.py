@@ -1,5 +1,5 @@
-from iterated_greedy import IteratedGreedyCRVP
-from iterated_semi_greedy import SemiGreedyCRVP
+from old_heuristics.iterated_greedy_old import IteratedGreedyCRVP
+from old_heuristics.iterated_semi_greedy import SemiGreedyCRVP
 import statistics
 
 from simple_local_search import SimpleLocalSearch

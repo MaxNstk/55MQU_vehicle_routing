@@ -25,17 +25,26 @@ class VehicleRoutingProblem:
         closest_cutomers.sort(key=lambda x: x[1])
         return list(map(lambda x: x[0], closest_cutomers))
 
-    def initialize_empty_routes(self):
+    def set_k_customers_amount(self,customers_amount):
+        # para transformar o semi guloso em um guloso sete o percentual k para 0
+        if self.k_percentage == 0:
+            self.k = 1
+        else:
+            self.k = int(customers_amount * (self.k_percentage / 100))
+            self.k = 1 if not self.k else self.k
+
+    def get_empty_routes(self):
         # Cria a quantidade de rotas referente a quantidade de veículos e adiciona o depósito nela
-        self.current_routes = [[1] for _ in range(self.num_vehicles)]
+        return [[1] for _ in range(self.num_vehicles)]
     
-    def initialize_customers(self):
+    def get_all_customers(self):
         # inicializa a lista de clientes disponiveis, a partir do 2 (0 não exite e 1 é o depósito) ate o ultimo
-        self.available_customers = list(range(2, len(self.demands)+1))
+       return list(range(2, len(self.demands)+1))
     
     def add_deposit_to_routes(self,routes):
         for route in routes:
-            route.append(1) 
+            if route[-1] != 1:
+                route.append(1) 
 
     def get_remaining_capacity(self, route):
         return self.vehicle_capacity - sum(self.demands[node] for node in route)
