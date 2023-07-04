@@ -44,7 +44,7 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
     
     def check_current_routes(self):
         self.current_routes_cost = self.get_routes_cost(self.current_routes)
-        if self.current_routes_cost < self.best_cost:
+        if not self.best_cost or self.current_routes_cost < self.best_cost:
             self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
     def run(self):
