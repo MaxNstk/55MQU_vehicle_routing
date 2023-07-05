@@ -51,15 +51,15 @@ class IteratedLocalSearch(VehicleRoutingProblem):
             self.current_routes = local_search['routes']
             self.current_routes_cost = self.get_routes_cost(self.current_routes)
  
-            for _ in range(self.n_distortion):
-                self.change_customers_route()
+            if self.max_iterations > 0:
+                for _ in range(self.n_distortion):
+                    self.change_customers_route()
 
         return {
             'routes':self.current_routes,
             'solution_cost': round(self.current_routes_cost, 2),
             'optimal_cost': self.optimal_value,
-            'max_iterations': self.max_iterations
         }
 
-simple_local_search = IteratedLocalSearch(max_iterations=1000, k_percentage=15, n_distortion=2)
-print(simple_local_search.run())
+# simple_local_search = IteratedLocalSearch(max_iterations=1000, k_percentage=15, n_distortion=2)
+# print(simple_local_search.run())
