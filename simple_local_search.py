@@ -102,14 +102,10 @@ class SimpleLocalSearch(VehicleRoutingProblem):
 
             # Percorre todos os elementos da rota, excluindo o depósito
             for i in range(1, len(route) - 1):
-                self.max_iterations -= 1
 
                 # Troca o elemento atual com todos os elementos da mesma rota
                 for j in range(1, len(route) - 1):
 
-                    self.max_iterations -= 1
-                    if self.max_iterations == 0: 
-                        return []
                     # Cria uma cópia do conjunto de rotas
                     new_routes = copy.deepcopy(current_routes)
 
@@ -124,10 +120,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
                 for other_route_index in range(len(current_routes)):
                     if other_route_index != route_index:
                         for j in range(1, len(current_routes[other_route_index]) - 1):
-                            
-                            self.max_iterations -= 1
-                            if self.max_iterations == 0: 
-                                return []
+                        
                             # Cria uma cópia do conjunto de rotas
                             new_routes = copy.deepcopy(current_routes)
 
@@ -167,6 +160,8 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             if self.current_routes_cost == self.optimal_value:
                 break
 
+            self.max_iterations -= 1
+
         return {
             'routes':self.current_routes,
             'solution_cost': round(self.current_routes_cost, 2),
@@ -174,5 +169,5 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             'remaining_iterations': self.max_iterations,
         }
 
-simple_local_search = SimpleLocalSearch(100000, file_path='instances/A/A-n63-k10.vrp')
-print(simple_local_search.run())
+# simple_local_search = SimpleLocalSearch(1000)
+# print(simple_local_search.run())
