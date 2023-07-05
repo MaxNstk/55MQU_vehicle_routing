@@ -26,7 +26,7 @@ class GRASPIteratedLocalSearch(VehicleRoutingProblem):
             self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
 
             iterated_local_search = IteratedLocalSearch(
-                k_percentage=self.k_percentage, file_path=self.file_path, max_iterations=self.internal_iterations,
+                file_path=self.file_path, max_iterations=self.internal_iterations,
                 n_distortion=self.n_distorcion).run(initial_solution=copy.deepcopy(self.current_routes))
             self.max_iterations -= self.internal_iterations
             

@@ -32,11 +32,16 @@ class IteratedLocalSearch(VehicleRoutingProblem):
         second_route[second_customer_idx] = first_customer
 
     # Função que implementa o algoritmo de busca local iterada
-    def run(self):
-        #define solução inicial
-        initial_solution = self.semi_greedy.run()
+    def run(self, initial_solution=None):
 
-        self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        # define solução inicial
+        if not initial_solution:
+            initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
+            self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+            self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        else:
+            self.current_routes, self.current_routes_cost = initial_solution, self.get_routes_cost(initial_solution)
+
 
         # Critério de parada: Máximo de iterações e encontro da solução ótima
         while self.max_iterations > 0:
