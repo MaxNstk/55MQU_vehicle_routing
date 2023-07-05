@@ -41,16 +41,12 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
     def set_desctruction_amount(self, destruction_percentage):
         self.D = int((len(self.demands)-1) * (destruction_percentage / 100))
         self.D = 1 if not self.D else self.D
-    
-    def check_current_routes(self):
-        self.current_routes_cost = self.get_routes_cost(self.current_routes)
-        if not self.best_cost or self.current_routes_cost < self.best_cost:
-            self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
-    def run(self):
+    def run(self, initial_solution=None):
 
         #define solução inicial
-        initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
+        if not initial_solution:
+            initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
 
         self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
         self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
@@ -78,7 +74,8 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         return {
             'routes':self.best_routes,
             'solution_cost': round(self.best_cost, 2),
-            'optimal_cost': self.optimal_value
+            'optimal_cost': self.optimal_value,
+            'remaining_terations': self.max_iterations
         }
 
 iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=20, k_percentage=20)

@@ -17,6 +17,11 @@ class VehicleRoutingProblem:
         self.vehicle_capacity, self.num_vehicles, self.optimal_value, self.dimension, self.node_coords, self.demands = self.load_vrp_instance(file_path)
         self.dist_matrix = self.get_distance_matrix(self.dimension, self.node_coords)
     
+    def check_current_routes(self):
+        self.current_routes_cost = self.get_routes_cost(self.current_routes)
+        if not self.best_cost or self.current_routes_cost < self.best_cost:
+            self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
+    
     def get_closest_customers(self, current_customer, available_customers):
         closest_cutomers = []
         for customer in available_customers:
