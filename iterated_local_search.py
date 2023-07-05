@@ -6,11 +6,11 @@ from vehicle_routing_problem import VehicleRoutingProblem
 
 class IteratedLocalSearch(VehicleRoutingProblem):
 
-    def __init__(self,max_iterations, k_percentage, n_distortion,  file_path="instances\A\A-n32-k5.vrp"):
+    def __init__(self,max_iterations, n_distortion,  file_path="instances\A\A-n32-k5.vrp"):
         super().__init__(file_path)
         self.max_iterations = max_iterations
         self.n_distortion = n_distortion
-        self.semi_greedy = SemiGreedyCRVP(k_percentage=k_percentage, file_path=self.file_path)
+        self.semi_greedy = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path)
 
     def change_customers_route(self):
         
@@ -61,5 +61,5 @@ class IteratedLocalSearch(VehicleRoutingProblem):
             'optimal_cost': self.optimal_value,
         }
 
-# simple_local_search = IteratedLocalSearch(max_iterations=1000, k_percentage=15, n_distortion=2)
+# simple_local_search = IteratedLocalSearch(max_iterations=1000, n_distortion=2)
 # print(simple_local_search.run())
