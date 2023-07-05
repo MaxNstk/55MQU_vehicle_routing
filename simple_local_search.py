@@ -34,27 +34,111 @@ class SimpleLocalSearch(VehicleRoutingProblem):
         return route1, route2
 
     
-    def get_better_routes(self):
-        self.better_routes = []
-        self.alternative_solutions = []
-        for idx in range(len(self.current_routes)-1):
+    # def get_better_routes_old(self):
+    #     self.better_routes = []
+    #     self.alternative_solutions = []
+    #     for idx in range(len(self.current_routes)-1):
 
-            # faz uma troca entre clientes na rota aual
-            base_routes = copy.deepcopy(self.current_routes)
-            base_routes[idx] = self.change_intra_route_customers(base_routes[idx])
-            if self.get_routes_cost(base_routes) < self.current_routes_cost:
-                self.better_routes.append(base_routes)
-            else:
-                self.alternative_solutions.append(base_routes)
+    #         # faz uma troca entre clientes na rota aual
+    #         base_routes = copy.deepcopy(self.current_routes)
+    #         base_routes[idx] = self.change_intra_route_customers(base_routes[idx])
+    #         if self.get_routes_cost(base_routes) < self.current_routes_cost:
+    #             self.better_routes.append(base_routes)
+    #         else:
+    #             self.alternative_solutions.append(base_routes)
+    #         self.max_iterations -= 1
 
-            # troca um cliente aleatório entre as próximas rotas
-            for i in range(idx,len(self.current_routes)-2):
-                base_routes = copy.deepcopy(self.current_routes)
-                base_routes[idx], base_routes[i+1] = self.change_inter_routes_customers(base_routes[idx], base_routes[i+1])
-                if self.get_routes_cost(base_routes) < self.current_routes_cost:
-                    self.better_routes.append(base_routes)
-                else:
-                    self.alternative_solutions.append(base_routes)
+    #         # troca um cliente aleatório entre as próximas rotas
+    #         for i in range(idx,len(self.current_routes)-2):
+    #             base_routes = copy.deepcopy(self.current_routes)
+    #             base_routes[idx], base_routes[i+1] = self.change_inter_routes_customers(base_routes[idx], base_routes[i+1])
+    #             if self.get_routes_cost(base_routes) < self.current_routes_cost:
+    #                 self.better_routes.append(base_routes)
+    #             else:
+    #                 self.alternative_solutions.append(base_routes)
+    #             self.max_iterations -= 1
+    
+        
+    # def get_better_routes(self):
+    #     self.better_routes = []
+    #     self.alternative_solutions = []
+
+    #     # para cada uma das rotas
+    #     for route_idx in range(len(self.current_routes)-1):
+
+    #         # para cada cliente dessa rota
+    #         for customer_idx in range(len(self.current_routes[route_idx])-2):
+                
+    #             base_customer = base_routes[customer_idx]
+    #             # faz a troca com todos demais clientes da rota
+    #             for idx in range(customer_idx+1, len(self.current_routes[route_idx])-2):
+    #                 base_routes = copy.deepcopy(self.current_routes)
+
+    #                 base_routes[customer_idx] = base_routes[idx]
+    #                 base_routes[idx] = base_customer
+                
+    #         base_routes[idx] = self.change_intra_route_customers(base_routes[idx])
+    #         if self.get_routes_cost(base_routes) < self.current_routes_cost:
+    #             self.better_routes.append(base_routes)
+    #         else:
+    #             self.alternative_solutions.append(base_routes)
+    #         self.max_iterations -= 1
+
+    #         # troca um cliente aleatório entre as próximas rotas
+    #         for i in range(idx,len(self.current_routes)-2):
+    #             base_routes = copy.deepcopy(self.current_routes)
+    #             base_routes[idx], base_routes[i+1] = self.change_inter_routes_customers(base_routes[idx], base_routes[i+1])
+    #             if self.get_routes_cost(base_routes) < self.current_routes_cost:
+    #                 self.better_routes.append(base_routes)
+    #             else:
+    #                 self.alternative_solutions.append(base_routes)
+    #             self.max_iterations -= 1
+
+    def get_better_neighbors(self, current_routes):
+        neighbors = []
+
+        # Percorre todas as rotas
+        for route_index, route in enumerate(current_routes):
+
+            # Percorre todos os elementos da rota, excluindo o depósito
+            for i in range(1, len(route) - 1):
+                self.max_iterations -= 1
+
+                # Troca o elemento atual com todos os elementos da mesma rota
+                for j in range(1, len(route) - 1):
+
+                    self.max_iterations -= 1
+                    if self.max_iterations == 0: 
+                        return []
+                    # Cria uma cópia do conjunto de rotas
+                    new_routes = copy.deepcopy(current_routes)
+
+                    # Troca os elementos
+                    new_routes[route_index][i], new_routes[route_index][j] = new_routes[route_index][j], new_routes[route_index][i]
+
+                    # Adiciona as novas rotas à lista de vizinhos caso seja melhor
+                    if self.get_routes_cost(new_routes) < self.current_routes_cost:
+                        neighbors.append(new_routes)
+
+                # Troca o elemento atual com todos os elementos das outras rotas
+                for other_route_index in range(len(current_routes)):
+                    if other_route_index != route_index:
+                        for j in range(1, len(current_routes[other_route_index]) - 1):
+                            
+                            self.max_iterations -= 1
+                            if self.max_iterations == 0: 
+                                return []
+                            # Cria uma cópia do conjunto de rotas
+                            new_routes = copy.deepcopy(current_routes)
+
+                            # Troca os elementos
+                            new_routes[route_index][i], new_routes[other_route_index][j] = new_routes[other_route_index][j], new_routes[route_index][i]
+
+                            # Adiciona as novas rotas à lista de vizinhos
+                            if self.get_routes_cost(new_routes) < self.current_routes_cost:
+                                neighbors.append(new_routes)
+
+        return neighbors
 
     # Função que implementa o algoritmo de busca local simples
     def run(self, initial_solution=None):
@@ -70,7 +154,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
         while self.max_iterations > 0:
 
             # faz pequenas modificações e grava na lista de better routes aquelas que geraram algum            
-            self.get_better_routes()
+            self.better_routes = self.get_better_neighbors(self.current_routes)
 
             # verifica se não há soluções com ganho
             if not self.better_routes:
@@ -83,15 +167,12 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             if self.current_routes_cost == self.optimal_value:
                 break
 
-            self.max_iterations -= 1
-
         return {
             'routes':self.current_routes,
             'solution_cost': round(self.current_routes_cost, 2),
             'optimal_cost': self.optimal_value,
             'remaining_iterations': self.max_iterations,
-            'alternative_solutions': self.alternative_solutions
         }
 
-# simple_local_search = SimpleLocalSearch(1000)
-# print(simple_local_search.run())
+simple_local_search = SimpleLocalSearch(100000, file_path='instances/A/A-n63-k10.vrp')
+print(simple_local_search.run())
