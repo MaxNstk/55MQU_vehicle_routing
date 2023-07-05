@@ -1,63 +1,48 @@
 import random
-from old_heuristics.iterated_greedy_old import IteratedGreedyCRVP
-from old_heuristics.iterated_semi_greedy import SemiGreedyCRVP
+import copy
+from semi_greedy import SemiGreedyCRVP
+from simple_local_search import SimpleLocalSearch
 from vehicle_routing_problem import VehicleRoutingProblem
 
 class IteratedLocalSearch(VehicleRoutingProblem):
 
-    def complete_missing_routes(self):
-        while self.available_customers:
-            current_route = self.get_route_with_more_capacity(self.current_routes)
-            chosen_customer = self.get_closest_customers(current_route[-1], self.available_customers)[0]
-            current_route.append(chosen_customer)
-            self.available_customers.remove(chosen_customer)
-        for route in self.current_routes:
-            if route[-1] != 1:
-                route.append(1)
-    
-    def detroy_routes(self):
-        routes_to_destroy = random.sample(range(len(self.current_routes)-1),self.destruction_number)
-        self.available_customers = []
-        for i in range(self.destruction_number):
-            self.available_customers.extend(self.current_routes[routes_to_destroy[i]][1:-1])
-            self.current_routes[routes_to_destroy[i]] = [1]
+    def __init__(self,max_iterations,internal_iterations, file_path="instances\A\A-n32-k5.vrp"):
+        self.internal_iterations = internal_iterations
+        self.max_iterations = max_iterations
+        super().__init__(file_path)
 
-    # Função que implementa o algoritmo de busca local iterada
-    def run(self, max_iterations, destruction_number): 
-        self.destruction_number = destruction_number
 
-        # Gera a solução inicial utilizando o SemiGreedy
-        semi_greedy = SemiGreedyCRVP(self.file_path)
+    # Função que implementa o algoritmo de busca local simples
+    def run(self):
 
-        initial_solution = semi_greedy.run(max_iterations=1, k_percentage=20)
+        #define solução inicial
+        initial_solution = SemiGreedyCRVP(k_percentage=20, file_path=self.file_path).run()
 
-        while not initial_solution[0]:
-            initial_solution = semi_greedy.run(max_iterations=1, k_percentage=20)
-        self.best_routes, self.best_cost = initial_solution[0], initial_solution[1]
-
-        iteration = 0
+        self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
 
         # Critério de parada: Máximo de iterações e encontro da solução ótima
-        while iteration < max_iterations:
+        while self.max_iterations > 0:
+
+            local_search = SimpleLocalSearch(
+                file_path=self.file_path, max_iterations=self.internal_iterations
+                ).run(initial_solution=copy.deepcopy(self.current_routes))
             
-            # Incrementa o contador
-            iteration += 1
-            self.current_routes, self.current_routes_cost = self.best_routes, self.best_cost
-
-            self.detroy_routes()
-            self.complete_missing_routes()
-
+            if local_search['solution_cost'] == self.optimal_value:
+                break
+            self.max_iterations -= (self.internal_iterations -local_search['remaining_iterations'])+1
+            self.current_routes = local_search['routes']
             self.current_routes_cost = self.get_routes_cost(self.current_routes)
 
-            if self.current_routes_cost < self.best_cost:
-               self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
 
-            # Verifica se solução gerada é a ideal
-            if self.best_cost == self.optimal_value:
-                return self.best_routes, self.best_cost
+            if self.internal_iterations > self.max_iterations:
+                self.internal_iterations = self.max_iterations
 
-        return self.best_routes, self.best_cost, self.optimal_value
-    
+        return {
+            'routes':self.current_routes,
+            'solution_cost': round(self.current_routes_cost, 2),
+            'optimal_cost': self.optimal_value,
+            'max_iterations': self.max_iterations
+        }
 
-simple_local_search = IteratedLocalSearch('instances/A/A-n80-k10.vrp')
-print(simple_local_search.run(5000, 2))
+simple_local_search = IteratedLocalSearch(max_iterations=5000, internal_iterations=100)
+print(simple_local_search.run())

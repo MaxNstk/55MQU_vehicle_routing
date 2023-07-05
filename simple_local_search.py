@@ -36,6 +36,7 @@ class SimpleLocalSearch(VehicleRoutingProblem):
     
     def get_better_routes(self):
         self.better_routes = []
+        self.alternative_solutions = []
         for idx in range(len(self.current_routes)-1):
 
             # faz uma troca entre clientes na rota aual
@@ -43,6 +44,8 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             base_routes[idx] = self.change_intra_route_customers(base_routes[idx])
             if self.get_routes_cost(base_routes) < self.current_routes_cost:
                 self.better_routes.append(base_routes)
+            else:
+                self.alternative_solutions.append(base_routes)
 
             # troca um cliente aleatório entre as próximas rotas
             for i in range(idx,len(self.current_routes)-2):
@@ -50,14 +53,18 @@ class SimpleLocalSearch(VehicleRoutingProblem):
                 base_routes[idx], base_routes[i+1] = self.change_inter_routes_customers(base_routes[idx], base_routes[i+1])
                 if self.get_routes_cost(base_routes) < self.current_routes_cost:
                     self.better_routes.append(base_routes)
+                else:
+                    self.alternative_solutions.append(base_routes)
 
     # Função que implementa o algoritmo de busca local simples
-    def run(self):
+    def run(self, initial_solution=None):
 
         #define solução inicial
-        initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
-
-        self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        if not initial_solution:
+            initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
+            self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        else:
+            self.current_routes, self.current_routes_cost = initial_solution, self.get_routes_cost(initial_solution)
 
         # Critério de parada: Máximo de iterações e encontro da solução ótima
         while self.max_iterations > 0:
@@ -82,8 +89,9 @@ class SimpleLocalSearch(VehicleRoutingProblem):
             'routes':self.current_routes,
             'solution_cost': round(self.current_routes_cost, 2),
             'optimal_cost': self.optimal_value,
-            'max_iterations': self.max_iterations
+            'remaining_iterations': self.max_iterations,
+            'alternative_solutions': self.alternative_solutions
         }
 
-simple_local_search = SimpleLocalSearch(1000)
-print(simple_local_search.run())
+# simple_local_search = SimpleLocalSearch(1000)
+# print(simple_local_search.run())

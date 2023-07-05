@@ -75,8 +75,8 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             'routes':self.best_routes,
             'solution_cost': round(self.best_cost, 2),
             'optimal_cost': self.optimal_value,
-            'remaining_terations': self.max_iterations
+            'remaining_iterations': self.max_iterations
         }
 
-iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=20, k_percentage=20)
+iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=20, k_percentage=20, file_path='instances/A/A-n33-k6.vrp')
 print(iterated_greedy.run())
