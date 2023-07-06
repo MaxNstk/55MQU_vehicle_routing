@@ -30,15 +30,16 @@ class GRASPIteratedLocalSearch(VehicleRoutingProblem):
                 n_distortion=self.n_distorcion).run(initial_solution=copy.deepcopy(self.current_routes))
             self.max_iterations -= self.internal_iterations
             
+            self.current_routes, self.current_routes_cost = iterated_local_search['routes'], iterated_local_search['solution_cost']
+            
+            self.check_current_routes()
+            
             if iterated_local_search['solution_cost'] == self.optimal_value:
                 break
 
             if self.max_iterations < self.internal_iterations:
                 self.internal_iterations = self.max_iterations
 
-            self.current_routes, self.current_routes_cost = iterated_local_search['routes'], iterated_local_search['solution_cost']
-            
-            self.check_current_routes()
 
         return {
             'routes':self.best_routes,

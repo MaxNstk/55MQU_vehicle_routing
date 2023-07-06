@@ -26,6 +26,10 @@ class GRASPLocalSearch(VehicleRoutingProblem):
                 file_path=self.file_path, max_iterations=self.internal_iterations
                 ).run(initial_solution=copy.deepcopy(self.current_routes))
             
+            self.current_routes = local_search['routes']
+            self.current_routes_cost = local_search['solution_cost']
+            self.check_current_routes()
+        
             if local_search['solution_cost'] == self.optimal_value:
                 break
             
@@ -34,10 +38,7 @@ class GRASPLocalSearch(VehicleRoutingProblem):
             if self.max_iterations < self.internal_iterations:
                 self.internal_iterations = self.max_iterations
 
-            self.current_routes = local_search['routes']
-            self.current_routes_cost = self.get_routes_cost(self.current_routes)
             
-            self.check_current_routes()
 
         return {
             'routes':self.best_routes,

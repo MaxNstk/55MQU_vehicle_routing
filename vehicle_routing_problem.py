@@ -17,6 +17,10 @@ class VehicleRoutingProblem:
         self.vehicle_capacity, self.num_vehicles, self.optimal_value, self.dimension, self.node_coords, self.demands = self.load_vrp_instance(file_path)
         self.dist_matrix = self.get_distance_matrix(self.dimension, self.node_coords)
     
+    def set_desctruction_amount(self, destruction_percentage):
+        self.D = int((len(self.demands)-1) * (destruction_percentage / 100))
+        self.D = 1 if not self.D else self.D
+
     def check_current_routes(self):
         self.current_routes_cost = self.get_routes_cost(self.current_routes)
         if not self.best_cost or self.current_routes_cost < self.best_cost:

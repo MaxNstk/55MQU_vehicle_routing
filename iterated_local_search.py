@@ -38,7 +38,6 @@ class IteratedLocalSearch(VehicleRoutingProblem):
         if not initial_solution:
             initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
             self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
-            self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
         else:
             self.current_routes, self.current_routes_cost = initial_solution, self.get_routes_cost(initial_solution)
 

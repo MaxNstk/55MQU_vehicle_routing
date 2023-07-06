@@ -22,40 +22,37 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
         
     
     def destroy_solution(self):
-        self.available_customers = []
-        self.visited_customers = self.get_all_customers()
-
         # remove elementos aleatórios das rotas, dado o parametro D
-        customers_to_destoy = random.sample(self.visited_customers, self.D)
-        for customer in customers_to_destoy:
-            self.available_customers.append(customer)
-            self.visited_customers.remove(customer)
-        
+        customers_to_destoy = random.sample(self.get_all_customers(), self.D)
+
         # monta as novas rotas, removendo os elementos selecionados acima
         for idx, route in enumerate(self.current_routes):
             new_route = route
             del new_route[-1]
-            new_route = [customer for customer in route if customer not in self.available_customers]
+            new_route = [customer for customer in route if customer not in customers_to_destoy]
             self.current_routes[idx] = new_route
-
-    def set_desctruction_amount(self, destruction_percentage):
-        self.D = int((len(self.demands)-1) * (destruction_percentage / 100))
-        self.D = 1 if not self.D else self.D
+    
+    def get_available_customers(self):
+        self.available_customers = self.get_all_customers()
+        for route in self.current_routes:
+            for customer in route:
+                if customer in self.available_customers:
+                    self.available_customers.remove(customer)
 
     def run(self, initial_solution=None):
 
         #define solução inicial
         if not initial_solution:
             initial_solution = SemiGreedyCRVP(k_percentage=100, file_path=self.file_path).run()
-
-        self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
-        self.best_routes, self.best_cost = self.current_routes, self.current_routes_cost
+            self.current_routes, self.current_routes_cost = initial_solution['routes'], initial_solution['solution_cost']
+        else:
+            self.current_routes, self.current_routes_cost = initial_solution, self.get_routes_cost(initial_solution)
 
         while self.max_iterations > 0:
         
             #destroi parcialmente a solução
             self.destroy_solution()
-
+            self.get_available_customers()
             #reconstroi a solução com o semi guloso
             self.available_customers, self.current_routes = self.semi_greedy.get_semi_greedy_routes(self.available_customers, self.current_routes)
 
@@ -78,5 +75,5 @@ class IteratedGreedyCRVP(VehicleRoutingProblem):
             'remaining_iterations': self.max_iterations
         }
 
-iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=20, k_percentage=20, file_path='instances/A/A-n33-k6.vrp')
-print(iterated_greedy.run())
+# iterated_greedy = IteratedGreedyCRVP(max_iterations=5000, destruction_percentage=70, k_percentage=15, file_path="instances/A/A-n33-k6.vrp")
+# print(iterated_greedy.run())
