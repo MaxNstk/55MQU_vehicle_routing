@@ -47,5 +47,5 @@ class GRASPLocalSearch(VehicleRoutingProblem):
             'remaining_iterations': self.max_iterations
         }
 
-simple_local_search = GRASPLocalSearch(max_iterations=1000, k_percentage=15, internal_iterations=100)
-print(simple_local_search.run())
+# simple_local_search = GRASPLocalSearch(max_iterations=1000, k_percentage=15, internal_iterations=100)
+# print(simple_local_search.run())

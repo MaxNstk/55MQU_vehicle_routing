@@ -2,13 +2,8 @@ from semi_greedy import SemiGreedyCRVP
 from vehicle_routing_problem import VehicleRoutingProblem
 import random
 
-
-# TODO impedir a remoção da primeira e ultima rota, verificar 
-# por que clientes disponíveis ja estão em rotas
 class IteratedGreedyCRVP(VehicleRoutingProblem):
-
-    """ Construtiva semi gulosa, preenche um caminhão de cada vez, 
-    melhorar para verificar em qual caminhão deve ser posto """        
+   
 
     def __init__(self,max_iterations, destruction_percentage, k_percentage, file_path="instances\A\A-n32-k5.vrp"):
         super().__init__(file_path)

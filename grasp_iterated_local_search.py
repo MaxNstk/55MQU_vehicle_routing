@@ -48,5 +48,5 @@ class GRASPIteratedLocalSearch(VehicleRoutingProblem):
             'max_iterations': self.max_iterations
         }
 
-simple_iterated_local_search = GRASPIteratedLocalSearch(max_iterations=1000, k_percentage=15, internal_iterations=100, n_distorcion=2)
-print(simple_iterated_local_search.run())
+# simple_iterated_local_search = GRASPIteratedLocalSearch(max_iterations=1000, k_percentage=15, internal_iterations=100, n_distorcion=2)
+# print(simple_iterated_local_search.run())

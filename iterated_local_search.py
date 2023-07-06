@@ -65,5 +65,5 @@ class IteratedLocalSearch(VehicleRoutingProblem):
             'optimal_cost': self.optimal_value,
         }
 
-# simple_local_search = IteratedLocalSearch(max_iterations=1000, n_distortion=2)
+# simple_local_search = IteratedLocalSearch(max_iterations=1000, n_distortion=2, file_path="instances/A/A-n33-k6.vrp")
 # print(simple_local_search.run())

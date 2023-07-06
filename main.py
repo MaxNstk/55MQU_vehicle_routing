@@ -12,7 +12,15 @@ from simple_local_search import SimpleLocalSearch
 # from iterated_greedy import IteratedGreedyCRVP
 
 instances = [
-    "instances/A/A-n32-k5.vrp"
+    "instances/A/A-n32-k5.vrp",
+    "instances/A/A-n33-k6.vrp",
+    "instances/A/A-n39-k5.vrp",
+    "instances/A/A-n44-k6.vrp",
+    "instances/A/A-n48-k7.vrp",
+    "instances/A/A-n54-k7.vrp",
+    "instances/A/A-n62-k8.vrp",
+    "instances/A/A-n65-k9.vrp",
+    "instances/A/A-n80-k10.vrp"
 ]
 
 '''
@@ -81,7 +89,7 @@ print(sum(grasp_simple_local_search_results) / len(grasp_simple_local_search_res
 
 grasp_iterated_local_search_results = []
 for instance in instances:
-    grasp_simple_local_search = GRASPIteratedGreedyCRVP(file_path=instance,max_iterations=5000, destruction_percentage=70, k_percentage=15,internal_iterations=1000)
+    grasp_simple_local_search = GRASPIteratedGreedyCRVP(file_path=instance,max_iterations=500, destruction_percentage=70, k_percentage=15,internal_iterations=50)
     results = grasp_simple_local_search.run()
 
     print(instance," :",results["optimal_cost"]," - ",results["solution_cost"]," - ",results["optimal_cost"]/results["solution_cost"])
