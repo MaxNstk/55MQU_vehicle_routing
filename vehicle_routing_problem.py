@@ -69,7 +69,7 @@ class VehicleRoutingProblem:
         raise NotImplementedError()
     
     def get_routes_cost(self, solution):
-        return sum(self.calculate_route_cost(node, self.dist_matrix) for node in solution)
+        return sum(self.calculate_route_cost(node) for node in solution)
     
     def load_vrp_instance(self, file_path):
 
@@ -126,10 +126,10 @@ class VehicleRoutingProblem:
             return np.sqrt((x)**2 + (y)**2)
 
 
-    def calculate_route_cost(self, route, distance_matrix):
+    def calculate_route_cost(self, route):
         cost = 0
         for i in range(len(route) - 1):
             start_node = route[i]
             end_node = route[i+1]
-            cost += distance_matrix[start_node-1][end_node-1]
+            cost += self.dist_matrix[start_node-1][end_node-1]
         return cost

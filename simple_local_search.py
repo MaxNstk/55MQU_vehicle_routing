@@ -50,9 +50,10 @@ class SimpleLocalSearch(VehicleRoutingProblem):
 
                     # Troca os elementos
                     new_routes[route_index][i], new_routes[route_index][j] = new_routes[route_index][j], new_routes[route_index][i]
-
+                    if self.get_remaining_capacity(new_routes[route_index]) < 0:
+                        continue
                     # Adiciona as novas rotas à lista de vizinhos caso seja melhor
-                    if self.get_routes_cost(new_routes) < self.current_routes_cost:
+                    if (self.get_routes_cost(new_routes) < self.current_routes_cost):
                         neighbors.append(new_routes)
 
                 # Troca o elemento atual com todos os elementos das outras rotas
@@ -65,6 +66,8 @@ class SimpleLocalSearch(VehicleRoutingProblem):
 
                             # Troca os elementos
                             new_routes[route_index][i], new_routes[other_route_index][j] = new_routes[other_route_index][j], new_routes[route_index][i]
+                            if self.get_remaining_capacity(new_routes[route_index]) < 0 or self.get_remaining_capacity(new_routes[other_route_index]) < 0:
+                                continue
 
                             # Adiciona as novas rotas à lista de vizinhos
                             if self.get_routes_cost(new_routes) < self.current_routes_cost:
